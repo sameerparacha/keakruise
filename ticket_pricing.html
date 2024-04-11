@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kea Kruise - Ticket Pricing</title>
+    <link rel="stylesheet" href="styles.css"> 
+</head>
+<body>
+    <header>
+        <h1>Kea Kruise - Ticket Pricing</h1>
+    </header>
+
+    <main>
+        <h2>Update Ticket Price</h2>
+        <form id="priceForm" action="save_ticket_price.php" method="POST"> 
+            <label for="ticketPrice">New Price:</label>
+            <input type="number" id="ticketPrice" name="ticketPrice" min="0" required> 
+            <button type="submit">Save Price</button>
+        </form>
+
+        <h2>Existing Prices</h2>
+        <div id="priceTableContainer"></div> 
+    </main>
+
+    <script>
+        function fetchTicketPrices() {
+            fetch('fetch_ticket_prices.php') 
+                .then(response => response.json()) 
+                .then(data => displayPriceTable(data)) 
+                .catch(error => console.error('Error fetching prices:', error)); 
+        }
+
+        function displayPriceTable(prices) {
+            const tableContainer = document.getElementById('priceTableContainer');
+            let tableHTML = `<table> 
+                                <thead>
+                                    <tr>
+                                        <th>Serial No</th>
+                                        <th>Ticket Price</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`; 
+
+            if (prices.length > 0) {
+                prices.forEach((price, index) => {
+                    tableHTML += `<tr>
+                                    <td>${index + 1}</td>
+                                    <td class="editable-price" data-priceid="${price.id}">${price.price}</td> 
+                                    <td>
+                                        <button onclick="makePriceEditable('${price.id}')">Edit</button>
+                                        <button onclick="deletePrice('${price.id}')">Delete</button>
+                                    </td>
+                                  </tr>`; 
+                });
+            } else {
+                tableHTML += `<tr><td colspan="3">No prices found.</td></tr>`; 
+            }
+
+            tableHTML += `</tbody></table>`; 
+            tableContainer.innerHTML = tableHTML;  
+        }
+
+        function makePriceEditable(priceId) {
+            const priceCell = document.querySelector(`.editable-price[data-priceid="${priceId}"]`);
+            const originalPrice = priceCell.textContent;
+
+            priceCell.innerHTML = `<input type="number" value="${originalPrice}"> <button onclick="updatePrice('${priceId}')">Update</button>`; 
+        }
+
+        function updatePrice(priceId) {
+            const priceCell = document.querySelector(`.editable-price[data-priceid="${priceId}"]`);
+            const newPriceInput = priceCell.querySelector('input'); 
+            const newPrice = newPriceInput.value; 
+
+            fetch('update_ticket_price.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}, 
+                body: `priceId=${priceId}&newPrice=${newPrice}` 
+            })
+            .then(response => response.text()) 
+            .then(message => {
+                alert(message); 
+                priceCell.textContent = newPrice; 
+            })
+            .catch(error => console.error('Error updating price:', error));  
+        }
+
+        function deletePrice(priceId) {
+            if (confirm("Are you sure you want to delete this price?")) {
+                fetch('delete_ticket_price.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}, 
+                    body: `priceId=${priceId}` 
+                })
+                .then(response => response.text()) 
+                .then(message => {
+                    alert(message); 
+                    removePriceRow(priceId);  
+                })
+                .catch(error => console.error('Error deleting price:', error));  
+            }
+        }
+
+        function removePriceRow(priceId) {
+            const rowToDelete = document.querySelector(`.editable-price[data-priceid="${priceId}"]`).closest('tr');
+            rowToDelete.remove(); 
+        }
+
+        // Initial call on page load
+        fetchTicketPrices(); 
+    </script>
+</body>
+</html>

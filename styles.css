@@ -1,0 +1,40 @@
+/* Basic Styles - These already existed */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+header {
+    background-color: #f0f0f0;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+nav a {
+    display: block;
+    background-color: #4CAF50; /* Example color */
+    color: white;
+    text-decoration: none;
+    padding: 15px;
+    margin: 10px; 
+    border-radius: 5px;
+}
+
+/* Table Styles */
+table {
+    border-collapse: collapse;
+    width: 100%; 
+    margin-top: 20px; /* Add some space after the report heading */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left; 
+}
+
+th { /* Optional: Style for the table header */
+    background-color: #f0f0f0; 
+} 

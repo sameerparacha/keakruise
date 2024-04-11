@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Kea Kruise - Booking</title>
+ <link rel="stylesheet" href="styles.css"> 
+</head>
+<body>
+ <header>
+  <h1>Kea Kruise - Book Your Ride</h1>
+ </header>
+
+ <main>
+  <form id="bookingForm" action="submit_booking.php" method="POST"> 
+   <label for="customer_name">Name:</label>
+   <input type="text" id="customer_name" name="customer_name" required><br><br>
+
+   <label for="phone_number">Phone Number:</label>
+   <input type="tel" id="phone_number" name="phone_number" required><br><br>
+
+   <label for="adults">Number of Adults:</label>
+   <input type="number" id="adults" name="adults" min="0" required><br><br>
+
+   <label for="kids">Number of Kids:</label>
+   <input type="number" id="kids" name="kids" min="0" required><br><br>
+
+   <label for="booking_date">Date:</label>
+   <input type="date" id="booking_date" name="booking_date" required><br><br>
+
+   <label for="booking_time">Time:</label>
+   <input type="time" id="booking_time" name="booking_time" required><br><br>
+
+    <section id="ticketPriceSection"> 
+      <h2>Select Ticket Price</h2>
+      <select id="ticketPriceDropdown">
+        <option value="">-- Loading Prices --</option> 
+      </select>
+      <input type="hidden" name="ticketPriceId" id="ticketPriceId">     </section> 
+       <button type="submit">Book Ride</button>
+  </form>
+ </main>
+
+  <script>
+    // JavaScript to dynamically add ticket prices
+    fetchTicketPrices(); 
+
+    function fetchTicketPrices() {
+      fetch('fetch_ticket_prices.php')
+        .then(response => response.json())
+        .then(prices => populatePriceDropdown(prices))
+        .catch(error => console.error('Error fetching prices:', error));
+    }
+
+    function populatePriceDropdown(prices) {
+      const priceDropdown = document.getElementById('ticketPriceDropdown');
+      priceDropdown.innerHTML = ''; // Reset options
+
+      if (prices.length > 0) {
+        prices.forEach(price => {
+          const option = document.createElement('option');
+          option.value = price.id; 
+          option.text = price.price; 
+          priceDropdown.appendChild(option);
+        });
+      } else {
+        const option = document.createElement('option');
+        option.value = '';
+        option.text = 'No prices found.';
+        priceDropdown.appendChild(option);
+      }
+
+      // Event Listener Added 
+      priceDropdown.addEventListener('change', function() {
+        const selectedPriceId = this.value; 
+        document.getElementById('ticketPriceId').value = selectedPriceId;
+      });
+    }
+  </script>
+</body>
+</html>
